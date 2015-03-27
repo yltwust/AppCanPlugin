@@ -1,0 +1,60 @@
+<idea-plugin version="2">
+    <id>com.ylt.appcan.plugin</id>
+    <name>AppCan Plugin</name>
+    <version>1.0</version>
+    <vendor email="ylt_wust@163.com" url="http://www.appcan.cn">ylt</vendor>
+
+    <description><![CDATA[
+        根据module name自动生成插件入口类以及plugin.xml<br>
+        根据plugin.xml method name生成对应方法
+      <em></em>
+    ]]></description>
+
+    <change-notes><![CDATA[
+      初始版本.<br>
+      <em></em>
+    ]]>
+    </change-notes>
+
+    <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
+    <idea-version since-build="131"/>
+
+    <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Plugin+Compatibility+with+IntelliJ+Platform+Products
+         on how to target different products -->
+    <!-- uncomment to enable plugin in all products
+    <depends>com.intellij.modules.lang</depends>
+    -->
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Add your extensions here -->
+    </extensions>
+
+    <application-components>
+        <!-- Add your application components here -->
+    </application-components>
+
+    <project-components>
+        <!-- Add your project components here -->
+    </project-components>
+
+    <actions>
+        <!-- Add your actions here -->
+
+        <group id="YltPluginGroup" class="com.ylt.plugin.YltPluginGroup" text="AppCanMenu">
+            <add-to-group group-id="ProjectViewPopupMenu"/>
+        </group>
+        <action id="com.ylt.plugin.action.InitPluginAction" class="com.ylt.plugin.action.InitPluginAction" text="InitPlugin" description="initPlugin">
+
+        </action>
+        <action id="PluginHTMLCaseGenerator" class="com.ylt.plugin.action.PluginHTMLCaseGeneratorAction" text="PluginHTMLCaseGenerator"
+                description="PluginHTMLCaseGenerator">
+        </action>
+
+        <action id="GenerateCodeAction" class="com.ylt.plugin.action.GenerateCodeAction" text="GenerateMethod"
+                description="GenerateCodeAction">
+            <add-to-group group-id="GenerateGroup"/>
+        </action>
+
+    </actions>
+
+</idea-plugin>
