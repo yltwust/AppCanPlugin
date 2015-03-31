@@ -55,6 +55,10 @@
             <add-to-group group-id="GenerateGroup"/>
         </action>
 
+        <action id="GenerateCallbackAction" class="com.ylt.plugin.action.GenerateCallbackAction"
+                text="GenerateCallback" description="GenerateCallbackAction">
+            <add-to-group group-id="GenerateGroup"/>
+        </action>
     </actions>
 
 </idea-plugin>

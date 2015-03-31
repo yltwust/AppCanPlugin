@@ -20,45 +20,50 @@ public class InitPluginAction extends AnAction {
     private VirtualFile moduleBaseDir;
     private String moduleName;
     VirtualFile euexClass = null;
+    VirtualFile jsConstFile=null;
     Module module;
 
     public void actionPerformed(AnActionEvent e) {
-        Project project=e.getData(CommonDataKeys.PROJECT);
-        PsiFile psiFile=e.getData(CommonDataKeys.PSI_FILE);
+        Project project = e.getData(CommonDataKeys.PROJECT);
+        PsiFile psiFile = e.getData(CommonDataKeys.PSI_FILE);
 //        e.getData(CommonData
-         module=ModuleUtil.findModuleForFile(e.getData(CommonDataKeys.VIRTUAL_FILE), project);
-        if (module==null||project==null){
+        module = ModuleUtil.findModuleForFile(e.getData(CommonDataKeys.VIRTUAL_FILE), project);
+        if (module == null || project == null) {
             return;
         }
-        moduleName=module.getName();
-        String path=module.getModuleFile().getParent().getPath();
+        moduleName = module.getName();
+        String path = module.getModuleFile().getParent().getPath();
         System.out.println(path);
-         moduleBaseDir =module.getModuleFile().getParent();
-        VirtualFile[] virtualFiles= moduleBaseDir.getChildren();
+        moduleBaseDir = module.getModuleFile().getParent();
+        VirtualFile[] virtualFiles = moduleBaseDir.getChildren();
         try {
-            VirtualFile resDir= moduleBaseDir.findChild("res");
-            if (resDir==null){
-                resDir= moduleBaseDir.createChildDirectory(null,"res");
+            VirtualFile resDir = moduleBaseDir.findChild("res");
+            if (resDir == null) {
+                resDir = moduleBaseDir.createChildDirectory(null, "res");
             }
-            VirtualFile xmlFile=resDir.findChild("xml");
-            if (xmlFile==null){
-                xmlFile=resDir.createChildDirectory(null,"xml");
+            VirtualFile xmlFile = resDir.findChild("xml");
+            if (xmlFile == null) {
+                xmlFile = resDir.createChildDirectory(null, "xml");
             }
             final VirtualFile finalXmlFile = xmlFile;
             ApplicationManager.getApplication().runWriteAction(new Runnable() {
                 @Override
                 public void run() {
-                     try {
-                        VirtualFile testFile = finalXmlFile.findOrCreateChildData(this, "plugin.xml");
-                        testFile.setBinaryContent(getPluginXml(moduleName).getBytes());
-                         //生成java类
-                         euexClass = createMainClass(moduleBaseDir, module.getName());
-                         euexClass.setBinaryContent(getMainClassCode(moduleName).getBytes());
-
-                     } catch (IOException e1) {
+                    try {
+                        //生成plugin.xml
+                        VirtualFile pluginFile = finalXmlFile.findOrCreateChildData(this, "plugin.xml");
+                        pluginFile.setBinaryContent(getPluginXml(moduleName).getBytes());
+                        //生成config.xml
+                        VirtualFile configFile = finalXmlFile.findOrCreateChildData(this, "config.xml");
+                        configFile.setBinaryContent(getPluginXml(moduleName).getBytes());
+                        //生成java类
+                        createMainClass(moduleBaseDir, module.getName());
+                        euexClass.setBinaryContent(getMainClassCode(moduleName).getBytes());
+                        jsConstFile.setBinaryContent(getJsConstClassCode(moduleName).getBytes());
+                    } catch (IOException e1) {
                         e1.printStackTrace();
                     }
-                 }
+                }
             });
         } catch (IOException e1) {
             System.out.println(e1.toString());
@@ -67,48 +72,48 @@ public class InitPluginAction extends AnAction {
     }
 
 
-    private VirtualFile createMainClass(VirtualFile baseDir,String projectName){
+    private void createMainClass(VirtualFile baseDir, String projectName) {
         try {
             VirtualFile srcFile = baseDir.findChild("src");
             if (srcFile == null) {
                 srcFile = baseDir.createChildDirectory(null, "src");
             }
-            VirtualFile orgFile=srcFile.findChild("org");
-            if (orgFile==null){
-                orgFile=srcFile.createChildDirectory(null,"org");
+            VirtualFile orgFile = srcFile.findChild("org");
+            if (orgFile == null) {
+                orgFile = srcFile.createChildDirectory(null, "org");
             }
-            VirtualFile zywxFile=orgFile.findChild("zywx");
-            if (zywxFile==null){
-                zywxFile=orgFile.createChildDirectory(null,"zywx");
+            VirtualFile zywxFile = orgFile.findChild("zywx");
+            if (zywxFile == null) {
+                zywxFile = orgFile.createChildDirectory(null, "zywx");
             }
-            VirtualFile wbpalmstarFile=zywxFile.findChild("wbpalmstar");
-            if (wbpalmstarFile==null){
-                wbpalmstarFile=zywxFile.createChildDirectory(null,"wbpalmstar");
+            VirtualFile wbpalmstarFile = zywxFile.findChild("wbpalmstar");
+            if (wbpalmstarFile == null) {
+                wbpalmstarFile = zywxFile.createChildDirectory(null, "wbpalmstar");
             }
-            VirtualFile widgetoneFile=wbpalmstarFile.findChild("widgetone");
-            if (widgetoneFile==null){
-                widgetoneFile=wbpalmstarFile.createChildDirectory(null,"widgetone");
-            }
-
-            String mainClassName=getMainClassByProjectName(moduleName);
-            VirtualFile projectFile=widgetoneFile.findChild(projectName);
-            if (projectFile==null){
-                projectFile=widgetoneFile.createChildDirectory(null,projectName);
+            VirtualFile widgetoneFile = wbpalmstarFile.findChild("widgetone");
+            if (widgetoneFile == null) {
+                widgetoneFile = wbpalmstarFile.createChildDirectory(null, "widgetone");
             }
 
-            return projectFile.findOrCreateChildData(null, mainClassName + ".java");
+            String mainClassName = getMainClassByProjectName(moduleName);
+            VirtualFile projectFile = widgetoneFile.findChild(projectName);
+            if (projectFile == null) {
+                projectFile = widgetoneFile.createChildDirectory(null, projectName);
+            }
+
+            euexClass=projectFile.findOrCreateChildData(null, mainClassName + ".java");
+            jsConstFile=projectFile.findOrCreateChildData(null,"JsConst.java");
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
     }
 
-    private String getMainClassByProjectName(String projectName){
-        return projectName.replace("uex","EUEx");
+    private String getMainClassByProjectName(String projectName) {
+        return projectName.replace("uex", "EUEx");
     }
 
-    private String getPluginXml(String projectName){
-        StringBuilder content=new StringBuilder();
+    private String getPluginXml(String projectName) {
+        StringBuilder content = new StringBuilder();
         content.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
                 "<uexplugins>\n" +
                 "\t<plugin\n" +
@@ -125,8 +130,17 @@ public class InitPluginAction extends AnAction {
         return content.toString();
     }
 
-    private String getMainClassCode(String projectName){
+    private String getJsConstClassCode(String moduleName){
         StringBuilder content=new StringBuilder();
+        content.append("package org.zywx.wbpalmstar.widgetone.")
+                .append(moduleName)
+                .append(";\n\n")
+                .append("public class JsConst {\n}\n");
+        return content.toString();
+    }
+
+    private String getMainClassCode(String projectName) {
+        StringBuilder content = new StringBuilder();
         content.append("package org.zywx.wbpalmstar.widgetone.")
                 .append(projectName)
                 .append(";\n\n")

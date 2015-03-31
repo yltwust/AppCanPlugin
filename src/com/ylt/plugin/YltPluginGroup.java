@@ -25,7 +25,7 @@ public class YltPluginGroup  extends ActionGroup {
         presentation.setText("InitModule");
         actions[1]=new PluginHTMLCaseGeneratorAction();
         Presentation presentation1=actions[1].getTemplatePresentation();
-        presentation1.setText("占位");
+        presentation1.setText("...");
         return actions;
     }
 }

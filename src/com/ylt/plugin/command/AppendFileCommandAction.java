@@ -84,22 +84,69 @@ public class AppendFileCommandAction extends WriteCommandAction<PsiFile> {
             return;
         }
         PsiJavaFile mainClassFile=(PsiJavaFile)files[0];
+
+        PsiFile[] jsFiles= FilenameIndex.getFilesByName(project,"JsConst.java",new EverythingGlobalScope(project));
+        if (files.length<=0){
+            return;
+        }
+        PsiJavaFile jsJavaFile=(PsiJavaFile)jsFiles[0];
+        PsiClass jsClass=JavaPsiFacade.getInstance(project).findClass(jsJavaFile.getPackageName() + "." + "JsConst", GlobalSearchScope.allScope(project));
         psiClass= JavaPsiFacade.getInstance(project).findClass(mainClassFile.getPackageName() + "." + mainClassName, GlobalSearchScope.allScope(project));
         int index=getIndex(psiClass);
         for (XmlItem method:content){
             if (hasMethod(psiClass,method.getMethodName())){
                 return;
             }
-            addMethodAndFiled(psiClass,method.getMethodName(),index);
+            if (method.getType()==2){
+                addJSConst(jsClass,method,module.getName());
+            }else{
+                 if (method.getType()==1){
+                    //cb回调
+                    addJSConst(jsClass,method,module.getName());
+                }
+                addMethodAndFiled(psiClass, method, index);
+            }
             index++;
         }
     }
 
-    private void addMethodAndFiled(PsiClass psiClass,String methodName,int index){
-        psiClass.add(mFactory.createFieldFromText(createStaticFiled(methodName,index),psiClass));
-        psiClass.addBefore(mFactory.createMethodFromText(createMethod(methodName),psiClass),psiClass.findMethodsByName("onHandleMessage",true)[0]);
-        psiClass.addBefore(mFactory.createMethodFromText(createMsgMethod(methodName),psiClass),psiClass.findMethodsByName("onHandleMessage",true)[0]);
-        addHandleMethod(psiClass,methodName);
+    private void addJSConst(PsiClass psiClass,XmlItem xmlItem,String moduleName){
+        psiClass.add(mFactory.createFieldFromText(getJsConstByName(xmlItem,moduleName),psiClass));
+    }
+
+    private void addMethodAndFiled(PsiClass psiClass,XmlItem method,int index){
+        psiClass.add(mFactory.createFieldFromText(createStaticFiled(method.getMethodName(),index),psiClass));
+        psiClass.addBefore(mFactory.createMethodFromText(createMethod(method.getMethodName()),psiClass),psiClass.findMethodsByName("onHandleMessage",true)[0]);
+        psiClass.addBefore(mFactory.createMethodFromText(createMsgMethod(method),psiClass),psiClass.findMethodsByName("onHandleMessage",true)[0]);
+        addHandleMethod(psiClass,method.getMethodName());
+    }
+
+    private String getJsConstByName(XmlItem method,String moduleName){
+        String methodName=method.getMethodName();
+        if (method.getType()==1) {
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append("public static final String CALLBACK_")
+                    .append(methodName.toUpperCase())
+                    .append(" = \"")
+                    .append(moduleName)
+                    .append(".cb")
+                    .append(methodName.substring(0, 1).toUpperCase())
+                    .append(methodName.substring(1, methodName.length()))
+                    .append("\";");
+            return stringBuilder.toString();
+        }else{
+            //==2
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append("public static final String ")
+                    .append(methodName.toUpperCase())
+                    .append(" = \"")
+                    .append(moduleName)
+                    .append(".")
+                    .append(methodName)
+                    .append("\";");
+            return stringBuilder.toString();
+        }
+
     }
 
     private void addHandleMethod(PsiClass psiClass,String methodName){
@@ -200,7 +247,8 @@ public class AppendFileCommandAction extends WriteCommandAction<PsiFile> {
         return  stringBuilder.toString();
     }
 
-    private String createMsgMethod(String methodName){
+    private String createMsgMethod(XmlItem method){
+        String methodName=method.getMethodName();
         StringBuilder stringBuilder=new StringBuilder("private void ");
         stringBuilder.append(methodName)
         .append("Msg(String[] params){\n" +
@@ -209,8 +257,19 @@ public class AppendFileCommandAction extends WriteCommandAction<PsiFile> {
                 "            JSONObject jsonObject=new JSONObject(json);\n" +
                 "        } catch (JSONException e) {\n" +
                 "            e.printStackTrace();\n" +
-                "        }\n" +
-                "    }");
+                "        }\n" );
+        if (method.getType()==1){
+            //cb回调
+            stringBuilder.append("String data=\" \";")
+                    .append("String js = SCRIPT_HEADER + \"if(\" + JsConst.CALLBACK_")
+                    .append(methodName.toUpperCase())
+                    .append(" + \"){\"\n" +
+                            "                + JsConst.CALLBACK_")
+                    .append(methodName.toUpperCase())
+                    .append("+ \"('\" + data + \"');}\";\n" +
+                            "        onCallback(js);");
+        }
+        stringBuilder.append( "    }");
         return  stringBuilder.toString();
     }
 

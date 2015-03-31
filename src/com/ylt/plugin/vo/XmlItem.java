@@ -7,6 +7,11 @@ public class XmlItem {
 
     private String methodName;
 
+    private int type=0;//默认为0，没有回调；1-有cb回调；2-on回调
+
+    private String[] params;//参数
+
+
     public String getMethodName() {
         return methodName;
     }
@@ -15,4 +20,19 @@ public class XmlItem {
         this.methodName = methodName;
     }
 
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
+
+    public String[] getParams() {
+        return params;
+    }
+
+    public void setParams(String[] params) {
+        this.params = params;
+    }
 }

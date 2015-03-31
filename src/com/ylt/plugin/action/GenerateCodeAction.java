@@ -57,11 +57,11 @@ public class GenerateCodeAction extends BaseGenerateAction {
         PsiFile file = PsiUtilBase.getPsiFileInEditor(editor, project);
         Module module= ModuleUtil.findModuleForFile(file.getVirtualFile(), project);
         List<XmlItem> methods=new ArrayList<XmlItem>();
-        getIDsFromLayout(file,editor,methods);
+        getMethodsFromXml(file, editor, methods);
         new AppendFileCommandAction(project,file,methods,module).execute();
     }
 
-    public static List<XmlItem> getIDsFromLayout(final PsiFile file,Editor editor, final List<XmlItem> elements) {
+    public static List<XmlItem> getMethodsFromXml(final PsiFile file, Editor editor, final List<XmlItem> elements) {
 
         int offset = editor.getCaretModel().getOffset();
         editor.getSelectionModel().getSelectedText();
@@ -87,6 +87,14 @@ public class GenerateCodeAction extends BaseGenerateAction {
                         XmlAttribute methodName=tag.getAttribute("name",null);
                         if (methodName!=null){
                             item.setMethodName(methodName.getValue());
+                            XmlAttribute typeAttribute=tag.getAttribute("type");
+                            if (typeAttribute!=null){
+                                item.setType(Integer.parseInt(typeAttribute.getValue()));
+                            }
+                            XmlAttribute paramsXmlAttribute=tag.getAttribute("params");
+                            if (paramsXmlAttribute!=null){
+                                item.setParams(paramsXmlAttribute.getValue().split("|"));
+                            }
                             elements.add(item);
                         }else{
                             return;
