@@ -72,7 +72,7 @@ public class InitPluginAction extends AnAction {
     }
 
 
-    private void createMainClass(VirtualFile baseDir, String projectName) {
+    private void createMainClass(VirtualFile baseDir, String moduleName) {
         try {
             VirtualFile srcFile = baseDir.findChild("src");
             if (srcFile == null) {
@@ -90,15 +90,15 @@ public class InitPluginAction extends AnAction {
             if (wbpalmstarFile == null) {
                 wbpalmstarFile = zywxFile.createChildDirectory(null, "wbpalmstar");
             }
-            VirtualFile widgetoneFile = wbpalmstarFile.findChild("widgetone");
-            if (widgetoneFile == null) {
-                widgetoneFile = wbpalmstarFile.createChildDirectory(null, "widgetone");
+            VirtualFile pluginFile = wbpalmstarFile.findChild("plugin");
+            if (pluginFile == null) {
+                pluginFile = wbpalmstarFile.createChildDirectory(null, "plugin");
             }
 
             String mainClassName = getMainClassByProjectName(moduleName);
-            VirtualFile projectFile = widgetoneFile.findChild(projectName);
+            VirtualFile projectFile = pluginFile.findChild(moduleName.toLowerCase());
             if (projectFile == null) {
-                projectFile = widgetoneFile.createChildDirectory(null, projectName);
+                projectFile = pluginFile.createChildDirectory(null, moduleName.toLowerCase());
             }
 
             euexClass=projectFile.findOrCreateChildData(null, mainClassName + ".java");
@@ -118,7 +118,7 @@ public class InitPluginAction extends AnAction {
                 "<uexplugins>\n" +
                 "\t<plugin\n" +
                 "        className=")
-                .append("\"org.zywx.wbpalmstar.widgetone.")
+                .append("\"org.zywx.wbpalmstar.plugin.")
                 .append(projectName.toLowerCase())
                 .append(".")
                 .append(getMainClassByProjectName(projectName))
@@ -132,17 +132,17 @@ public class InitPluginAction extends AnAction {
 
     private String getJsConstClassCode(String moduleName){
         StringBuilder content=new StringBuilder();
-        content.append("package org.zywx.wbpalmstar.widgetone.")
-                .append(moduleName)
+        content.append("package org.zywx.wbpalmstar.plugin.")
+                .append(moduleName.toLowerCase())
                 .append(";\n\n")
                 .append("public class JsConst {\n}\n");
         return content.toString();
     }
 
-    private String getMainClassCode(String projectName) {
+    private String getMainClassCode(String moduleName) {
         StringBuilder content = new StringBuilder();
-        content.append("package org.zywx.wbpalmstar.widgetone.")
-                .append(projectName)
+        content.append("package org.zywx.wbpalmstar.plugin.")
+                .append(moduleName.toLowerCase())
                 .append(";\n\n")
                 .append("import android.content.Context;\n" +
                         "import android.content.Intent;\n" +
@@ -154,9 +154,9 @@ public class InitPluginAction extends AnAction {
                         "import org.json.JSONObject;\n" +
                         "import org.zywx.wbpalmstar.engine.EBrowserView;\n" +
                         "import org.zywx.wbpalmstar.engine.universalex.EUExBase;\n\n")
-                .append("public class ").append(getMainClassByProjectName(projectName)).append(" extends EUExBase {\n\n")
+                .append("public class ").append(getMainClassByProjectName(moduleName)).append(" extends EUExBase {\n\n")
                 .append("    private static final String BUNDLE_DATA = \"data\";\n\n")
-                .append("    public ").append(getMainClassByProjectName(projectName))
+                .append("    public ").append(getMainClassByProjectName(moduleName))
                 .append("(Context context, EBrowserView eBrowserView) {\n" +
                         "        super(context, eBrowserView);\n" +
                         "    }\n" +
@@ -175,9 +175,14 @@ public class InitPluginAction extends AnAction {
                         "        Bundle bundle=message.getData();\n" +
                         "        switch (message.what) {\n\n" +
                         "        default:\n" +
-                        "                super.onHandleMessage(message);" +
+                        "                super.onHandleMessage(message);\n" +
                         "        }\n" +
-                        "    }\n" +
+                        "    }\n\n" +
+                        "    private void callBackPluginJs(String methodName, String jsonData){\n" +
+                        "        String js = SCRIPT_HEADER + \"if(\" + methodName + \"){\"\n" +
+                        "                + methodName + \"('\" + jsonData + \"');}\";\n" +
+                        "        onCallback(js);\n" +
+                        "    }\n\n"+
                         "}\n");
 
         return content.toString();

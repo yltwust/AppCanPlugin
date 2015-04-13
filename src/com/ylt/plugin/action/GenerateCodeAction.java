@@ -61,49 +61,59 @@ public class GenerateCodeAction extends BaseGenerateAction {
         new AppendFileCommandAction(project,file,methods,module).execute();
     }
 
-    public static List<XmlItem> getMethodsFromXml(final PsiFile file, Editor editor, final List<XmlItem> elements) {
+    public List<XmlItem> getMethodsFromXml(final PsiFile file, Editor editor, final List<XmlItem> elements) {
 
-        int offset = editor.getCaretModel().getOffset();
-        editor.getSelectionModel().getSelectedText();
-        PsiElement candidate = file.findElementAt(offset);
+//        int offset = editor.getCaretModel().getOffset();
+//        editor.getSelectionModel().getSelectedText();
+//        PsiElement candidate = file.findElementAt(offset);
+//
+//        if (candidate!=null){
+//            file.
+//            XmlItem xmlItem=new XmlItem();
+//            xmlItem.setMethodName(candidate.getText());
+//            elements.add(xmlItem);
+//            return elements;
+//        }
 
-        if (candidate!=null){
-            XmlItem xmlItem=new XmlItem();
-            xmlItem.setMethodName(candidate.getText());
-            elements.add(xmlItem);
-            return elements;
-        }
-
-        file.accept(new XmlRecursiveElementVisitor() {
-
-            @Override
-            public void visitElement(final PsiElement element) {
-                super.visitElement(element);
-
-                if (element instanceof XmlTag) {
-                    XmlTag tag = (XmlTag) element;
-                    XmlItem item=new XmlItem();
-                    if (tag.getName().equals("method")){
-                        XmlAttribute methodName=tag.getAttribute("name",null);
-                        if (methodName!=null){
-                            item.setMethodName(methodName.getValue());
-                            XmlAttribute typeAttribute=tag.getAttribute("type");
-                            if (typeAttribute!=null){
-                                item.setType(Integer.parseInt(typeAttribute.getValue()));
-                            }
-                            XmlAttribute paramsXmlAttribute=tag.getAttribute("params");
-                            if (paramsXmlAttribute!=null){
-                                item.setParams(paramsXmlAttribute.getValue().split("|"));
-                            }
-                            elements.add(item);
-                        }else{
-                            return;
-                        }
-                    }
-                 }
-            }
-        });
+        file.accept(new MyXmlRecursiveElementVisitor(elements));
 
         return elements;
+    }
+
+    public class MyXmlRecursiveElementVisitor extends XmlRecursiveElementVisitor{
+
+
+        private List<XmlItem> elements;
+
+        public MyXmlRecursiveElementVisitor(List<XmlItem> elements){
+            this.elements=elements;
+        }
+
+        @Override
+        public void visitElement(PsiElement element) {
+            super.visitElement(element);
+
+            if (element instanceof XmlTag) {
+                XmlTag tag = (XmlTag) element;
+                XmlItem item=new XmlItem();
+                if (tag.getName().equals("method")){
+                    XmlAttribute methodName=tag.getAttribute("name",null);
+                    if (methodName!=null){
+                        item.setMethodName(methodName.getValue());
+                        XmlAttribute typeAttribute=tag.getAttribute("type");
+                        if (typeAttribute!=null){
+                            item.setType(Integer.parseInt(typeAttribute.getValue()));
+                        }
+                        XmlAttribute paramsXmlAttribute=tag.getAttribute("params");
+                        if (paramsXmlAttribute!=null){
+                            item.setParams(paramsXmlAttribute.getValue().split("|"));
+                        }
+                        elements.add(item);
+                    }else{
+                        return;
+                    }
+                }
+            }
+        }
     }
 }

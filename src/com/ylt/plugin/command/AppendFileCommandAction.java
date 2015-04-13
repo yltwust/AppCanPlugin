@@ -10,6 +10,7 @@ import com.intellij.psi.codeStyle.JavaCodeStyleManager;
 import com.intellij.psi.search.EverythingGlobalScope;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
+import com.ylt.plugin.util.StringUtil;
 import com.ylt.plugin.util.Util;
 import com.ylt.plugin.vo.XmlItem;
 import org.jetbrains.annotations.NotNull;
@@ -90,23 +91,27 @@ public class AppendFileCommandAction extends WriteCommandAction<PsiFile> {
             return;
         }
         PsiJavaFile jsJavaFile=(PsiJavaFile)jsFiles[0];
-        PsiClass jsClass=JavaPsiFacade.getInstance(project).findClass(jsJavaFile.getPackageName() + "." + "JsConst", GlobalSearchScope.allScope(project));
+        PsiClass jsClass=JavaPsiFacade.getInstance(project).findClass(mainClassFile.getPackageName() + "." + "JsConst", GlobalSearchScope.allScope(project));
         psiClass= JavaPsiFacade.getInstance(project).findClass(mainClassFile.getPackageName() + "." + mainClassName, GlobalSearchScope.allScope(project));
         int index=getIndex(psiClass);
         for (XmlItem method:content){
-            if (hasMethod(psiClass,method.getMethodName())){
-                return;
-            }
-            if (method.getType()==2){
-                addJSConst(jsClass,method,module.getName());
-            }else{
-                 if (method.getType()==1){
-                    //cb回调
+
+            if (method.getType()==2||method.getType()==1){
+                //添加JS 回调
+                if (!hasJsConst(jsClass,method)){
                     addJSConst(jsClass,method,module.getName());
                 }
-                addMethodAndFiled(psiClass, method, index);
             }
-            index++;
+
+            if (method.getType()==0||method.getType()==1){
+                //添加方法
+                if (hasMethod(psiClass, method.getMethodName())){
+                    continue;
+                }
+                addMethodAndFiled(psiClass, method, index);
+                index++;
+            }
+
         }
     }
 
@@ -125,8 +130,8 @@ public class AppendFileCommandAction extends WriteCommandAction<PsiFile> {
         String methodName=method.getMethodName();
         if (method.getType()==1) {
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append("public static final String CALLBACK_")
-                    .append(methodName.toUpperCase())
+            stringBuilder.append("public static final String ")
+                    .append(getFieldName(method))
                     .append(" = \"")
                     .append(moduleName)
                     .append(".cb")
@@ -138,7 +143,7 @@ public class AppendFileCommandAction extends WriteCommandAction<PsiFile> {
             //==2
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append("public static final String ")
-                    .append(methodName.toUpperCase())
+                    .append(getFieldName(method))
                     .append(" = \"")
                     .append(moduleName)
                     .append(".")
@@ -147,6 +152,14 @@ public class AppendFileCommandAction extends WriteCommandAction<PsiFile> {
             return stringBuilder.toString();
         }
 
+    }
+
+    private String getFieldName(XmlItem method){
+        if (method.getType()==1){
+            return "CALLBACK_"+StringUtil.getStaticFieldName(method.getMethodName());
+        }else {
+            return StringUtil.getStaticFieldName(method.getMethodName());
+        }
     }
 
     private void addHandleMethod(PsiClass psiClass,String methodName){
@@ -186,7 +199,7 @@ public class AppendFileCommandAction extends WriteCommandAction<PsiFile> {
     private String getCaseState(String method){
         StringBuilder builder=new StringBuilder();
         builder.append("case MSG_")
-                .append(method.toUpperCase())
+                .append(StringUtil.getStaticFieldName(method))
                 .append(":");
         return builder.toString();
     }
@@ -206,20 +219,34 @@ public class AppendFileCommandAction extends WriteCommandAction<PsiFile> {
         return true;
     }
 
+    private boolean hasJsConst(PsiClass psiClass,XmlItem method){
+        PsiField field=psiClass.findFieldByName(getFieldName(method), true);
+        if (field==null){
+            return false;
+        }
+        return true;
+    }
+
     private int getIndex(PsiClass psiClass){
-        int index=1;
+        int index=0;
         PsiField[] psiFields=psiClass.getAllFields();
         for (int i=0;i<psiFields.length;i++){
             if (psiFields[i].getName().contains("MSG_")){
-                index++;
-            }
+                for (PsiElement element:psiFields[i].getChildren()){
+                    if (element instanceof PsiLiteralExpression){
+                        PsiLiteralExpression expression= (PsiLiteralExpression) element;
+                        index= Integer.parseInt(expression.getText());
+
+                    }
+                }
+             }
         }
-        return index;
+        return index+1;
     }
 
     private String createStaticFiled(String methodName,int index){
         StringBuilder stringBuilder=new StringBuilder("private static final int MSG_")
-                .append(methodName.toUpperCase())
+                .append(StringUtil.getStaticFieldName(methodName))
                 .append("=")
                 .append(index)
                 .append(";\n");
@@ -237,7 +264,7 @@ public class AppendFileCommandAction extends WriteCommandAction<PsiFile> {
                         "        Message msg = new Message();\n" +
                         "        msg.obj = this;\n" +
                         "        msg.what = MSG_")
-                .append(methodName.toUpperCase())
+                .append(StringUtil.getStaticFieldName(methodName))
                 .append(";\n" +
                         "        Bundle bd = new Bundle();\n" +
                         "        bd.putStringArray(BUNDLE_DATA, params);\n" +
@@ -260,14 +287,14 @@ public class AppendFileCommandAction extends WriteCommandAction<PsiFile> {
                 "        }\n" );
         if (method.getType()==1){
             //cb回调
-            stringBuilder.append("String data=\" \";")
-                    .append("String js = SCRIPT_HEADER + \"if(\" + JsConst.CALLBACK_")
-                    .append(methodName.toUpperCase())
-                    .append(" + \"){\"\n" +
-                            "                + JsConst.CALLBACK_")
-                    .append(methodName.toUpperCase())
-                    .append("+ \"('\" + data + \"');}\";\n" +
-                            "        onCallback(js);");
+            stringBuilder.append("JSONObject jsonResult=new JSONObject();\n" +
+                    "        try {\n" +
+                    "            jsonResult.put(\"\",\"\");")
+                    .append("} catch (JSONException e) {\n" +
+                            "        }\n")
+                    .append("callBackPluginJs(JsConst.CALLBACK_")
+                    .append(StringUtil.getStaticFieldName(methodName))
+                    .append(", jsonResult.toString());\n");
         }
         stringBuilder.append( "    }");
         return  stringBuilder.toString();
