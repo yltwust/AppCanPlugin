@@ -16,6 +16,7 @@ import com.intellij.psi.util.PsiUtilBase;
 import com.intellij.psi.xml.XmlAttribute;
 import com.intellij.psi.xml.XmlTag;
 import com.ylt.plugin.command.AppendFileCommandAction;
+import com.ylt.plugin.command.AppendHTMLCommandAction;
 import com.ylt.plugin.vo.XmlItem;
 
 import java.util.ArrayList;
@@ -59,6 +60,8 @@ public class GenerateCodeAction extends BaseGenerateAction {
         List<XmlItem> methods=new ArrayList<XmlItem>();
         getMethodsFromXml(file, editor, methods);
         new AppendFileCommandAction(project,file,methods,module).execute();
+        new AppendHTMLCommandAction(project,file,methods,module).execute();
+
     }
 
     public List<XmlItem> getMethodsFromXml(final PsiFile file, Editor editor, final List<XmlItem> elements) {
