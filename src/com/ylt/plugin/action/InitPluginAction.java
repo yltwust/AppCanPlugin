@@ -116,7 +116,7 @@ public class InitPluginAction extends AnAction {
         StringBuilder content = new StringBuilder();
         content.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
                 "<uexplugins>\n" +
-                "\t<plugin\n" +
+                "    <plugin\n" +
                 "        className=")
                 .append("\"org.zywx.wbpalmstar.plugin.")
                 .append(projectName.toLowerCase())
@@ -124,7 +124,9 @@ public class InitPluginAction extends AnAction {
                 .append(getMainClassByProjectName(projectName))
                 .append("\" uexName=\"")
                 .append(projectName)
-                .append("\" >\n    </plugin>\n" +
+                .append("\" >\n" +
+                        "        <method name=\"\" type=\"012\" params=\"param1|param2\"/>\n" +
+                        "</plugin>\n" +
                         "</uexplugins>");
 
         return content.toString();

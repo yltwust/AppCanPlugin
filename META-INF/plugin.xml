@@ -1,17 +1,25 @@
-<idea-plugin version="2">
+<idea-plugin version="3">
     <id>com.ylt.appcan.plugin</id>
     <name>AppCan Plugin</name>
-    <version>1.0</version>
+    <version>1.0.1</version>
     <vendor email="ylt_wust@163.com" url="http://www.appcan.cn">ylt</vendor>
 
     <description><![CDATA[
-        根据module name自动生成插件入口类以及plugin.xml<br>
+        根据module name自动生成插件入口类以及plugin.xml,config.xml<br>
+        在config.xml中配置
         根据plugin.xml method name生成对应方法
+        使用说明:
+        1.复制AppcanPluginDemo3.0工程，重命module为插件名称，以uex开头;<br>
+        2.右键module -> AppCanMenu -> initModule <br>
+        会初始化入口类，plugin.xml,config.xml <br>
+        3.在config.xml中配置method name type params(多个参数以“|”分隔)<br>
+        4.右键 -> Generate -> generateMethod <br>
       <em></em>
     ]]></description>
 
     <change-notes><![CDATA[
       初始版本.<br>
+      1.0.1 添加HTML生成
       <em></em>
     ]]>
     </change-notes>

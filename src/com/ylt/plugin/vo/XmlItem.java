@@ -7,6 +7,16 @@ public class XmlItem {
 
     private String methodName;
 
+    public String getCbMethodName() {
+        return cbMethodName;
+    }
+
+    public void setCbMethodName(String cbMethodName) {
+        this.cbMethodName = cbMethodName;
+    }
+
+    private String cbMethodName;
+
     private int type=0;//默认为0，没有回调；1-有cb回调；2-on回调
 
     private String[] params;//参数

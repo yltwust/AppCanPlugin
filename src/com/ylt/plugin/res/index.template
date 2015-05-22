@@ -1,0 +1,28 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="css/index.css">
+
+    <script type="text/javascript">
+"$FUNCTION$"
+        window.uexOnload = function(type){
+            if(type == 0){
+"$CALLBACK_REGISTER$"
+            }
+        }
+"$CALLBACK"
+    </script>
+</head>
+
+<body>
+<div class="tit">"$TITLE$"</div>
+<div class="conbor">
+    <div class="consj">
+"$BODY$"
+    </div>
+</div>
+</body>
+</html>

@@ -5,6 +5,7 @@ import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.html.HtmlTag;
@@ -45,14 +46,72 @@ public class AppendHTMLCommandAction extends WriteCommandAction<PsiFile> {
 
     @Override
     protected void run(Result<PsiFile> result) throws Throwable {
-        getBodyAndHead();
+//        getBodyAndHead();
+        String html=FileUtil.loadTextAndClose(getClass().getResourceAsStream("/com/ylt/plugin/res/index.template"));
+        html=html.replace("\"$FUNCTION$\"",getFunctionString());
+        html=html.replace("\"$BODY$\"",getBodyString());
+        html=html.replace("\"$CALLBACK_REGISTER$\"",getCallbackRegisterString());
+        html=html.replace("\"$CALLBACK\"",getCallbackString());
+        html=html.replace("\"$TITLE$\"",module.getName());
+        htmlIndexFile.getVirtualFile().setBinaryContent(html.getBytes());
     }
 
-    private void generateBody(){
-
+    private String getBodyString(){
+        StringBuilder bodyStringBuilder=new StringBuilder();
+        for (XmlItem xmlItem:content){
+            if (xmlItem.getType()!=2){
+                bodyStringBuilder.append("            <input class='btn' type='button' value='").append(xmlItem.getMethodName()).append("' onclick=")
+                        .append("'").append(xmlItem.getMethodName()).append("()'>\n\n");
+            }
+        }
+        return bodyStringBuilder.toString();
     }
 
+    private String getCallbackRegisterString(){
+        StringBuilder callbackRegister=new StringBuilder();
+        for (XmlItem xmlItem:content){
+            if (xmlItem.getType()!=0){
+                String callbackName = null;
+                if (xmlItem.getType()==1){
+                    callbackName=xmlItem.getCbMethodName();
+                }else if (xmlItem.getType()==2){
+                    callbackName=xmlItem.getMethodName();
+                }
+                callbackRegister.append("            ").append(module.getName()).append(".")
+                        .append(callbackName).append(" = ").append(callbackName).append(";\n");
+            }
+        }
+        return callbackRegister.toString();
+    }
 
+    private String getFunctionString(){
+        StringBuilder functionStringBuilder=new StringBuilder();
+        for (XmlItem xmlItem:content){
+            if (xmlItem.getType()!=2){
+                functionStringBuilder.append("\tfunction\40").append(xmlItem.getMethodName())
+                        .append("(){\n\t\tvar params = {\n\n\t\t};\n\t\tvar data = JSON.stringify(params);\n\t\t")
+                        .append(module.getName()).append(".").append(xmlItem.getMethodName()).append("(data);\n\t}\n\n");
+            }
+        }
+        return functionStringBuilder.toString();
+    }
+
+    private String getCallbackString(){
+        StringBuilder callbackBuilder=new StringBuilder();
+        for (XmlItem xmlItem:content) {
+            if (xmlItem.getType()!=0) {
+                String callbackName = null;
+                if (xmlItem.getType()==1){
+                    callbackName=xmlItem.getCbMethodName();
+                }else if (xmlItem.getType()==2){
+                    callbackName=xmlItem.getMethodName();
+                }
+                callbackBuilder.append("    function\40").append(callbackName).append("(info){\n        ")
+                        .append("alert(info);\n    }\n\n");
+            }
+        }
+        return callbackBuilder.toString();
+    }
 
     private void getBodyAndHead() {
         PsiElement[] rootElement=htmlIndexFile.getChildren();

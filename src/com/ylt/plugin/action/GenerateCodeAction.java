@@ -106,6 +106,11 @@ public class GenerateCodeAction extends BaseGenerateAction {
                         XmlAttribute typeAttribute=tag.getAttribute("type");
                         if (typeAttribute!=null){
                             item.setType(Integer.parseInt(typeAttribute.getValue()));
+                            if (item.getType()==1){
+                                item.setCbMethodName("cb" + item.getMethodName().substring(0, 1)
+                                        .toUpperCase() + item.getMethodName().substring(1,
+                                        item.getMethodName().length()));
+                            }
                         }
                         XmlAttribute paramsXmlAttribute=tag.getAttribute("params");
                         if (paramsXmlAttribute!=null){
