@@ -51,8 +51,8 @@ public class InitPluginAction extends AnAction {
                 public void run() {
                     try {
                         //生成plugin.xml
-                        VirtualFile pluginFile = finalXmlFile.findOrCreateChildData(this, "plugin.xml");
-                        pluginFile.setBinaryContent(getPluginXml(moduleName).getBytes());
+//                        VirtualFile pluginFile = finalXmlFile.findOrCreateChildData(this, "plugin.xml");
+//                        pluginFile.setBinaryContent(getPluginXml(moduleName).getBytes());
                         //生成config.xml
                         VirtualFile configFile = finalXmlFile.findOrCreateChildData(this, "config.xml");
                         configFile.setBinaryContent(getPluginXml(moduleName).getBytes());
