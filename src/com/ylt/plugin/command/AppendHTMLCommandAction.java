@@ -93,9 +93,9 @@ public class AppendHTMLCommandAction extends WriteCommandAction<PsiFile> {
                 if (xmlItem.getParams()!=null&&xmlItem.getParams().length>0){
                     for (int i = 0; i < xmlItem.getParams().length; i++) {
                         if (i==xmlItem.getParams().length-1){
-                            functionStringBuilder.append("            ").append(xmlItem.getParams()[i]).append(":\n");
+                            functionStringBuilder.append("            ").append(xmlItem.getParams()[i]).append(":\"\"\n");
                         }else {
-                            functionStringBuilder.append("            ").append(xmlItem.getParams()[i]).append(":,\n");
+                            functionStringBuilder.append("            ").append(xmlItem.getParams()[i]).append(":\"\",\n");
                         }
 
                     }

@@ -279,8 +279,7 @@ public class AppendFileCommandAction extends WriteCommandAction<PsiFile> {
         StringBuilder stringBuilder=new StringBuilder("private void ");
         stringBuilder.append(methodName)
         .append("Msg(String[] params){\n" +
-                "        String json=params[0];\n" +
-                "        }\n" );
+                "        String json=params[0];\n");
         if (method.getType()==1){
             //cb回调
             stringBuilder.append("JSONObject jsonResult=new JSONObject();\n" +

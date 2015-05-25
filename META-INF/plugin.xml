@@ -1,7 +1,7 @@
 <idea-plugin version="3">
     <id>com.ylt.appcan.plugin</id>
     <name>AppCan Plugin</name>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <vendor email="ylt_wust@163.com" url="http://www.appcan.cn">ylt</vendor>
 
     <description><![CDATA[
@@ -20,6 +20,7 @@
     <change-notes><![CDATA[
       初始版本.<br>
       1.0.1 添加HTML生成
+      1.0.2 支持HTML参数生成
       <em></em>
     ]]>
     </change-notes>
