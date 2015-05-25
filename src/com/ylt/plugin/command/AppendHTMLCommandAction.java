@@ -37,7 +37,7 @@ public class AppendHTMLCommandAction extends WriteCommandAction<PsiFile> {
         if (files != null && files.length > 0) {
             for (PsiFile psiFile:files){
                 if (ModuleUtil.findModuleForFile(psiFile.getVirtualFile(), project).getModuleFilePath().equals(module.getModuleFilePath())) {
-                    htmlIndexFile = files[0];
+                    htmlIndexFile =psiFile;
                 }
               }
          }
@@ -88,9 +88,20 @@ public class AppendHTMLCommandAction extends WriteCommandAction<PsiFile> {
         StringBuilder functionStringBuilder=new StringBuilder();
         for (XmlItem xmlItem:content){
             if (xmlItem.getType()!=2){
-                functionStringBuilder.append("\tfunction\40").append(xmlItem.getMethodName())
-                        .append("(){\n\t\tvar params = {\n\n\t\t};\n\t\tvar data = JSON.stringify(params);\n\t\t")
-                        .append(module.getName()).append(".").append(xmlItem.getMethodName()).append("(data);\n\t}\n\n");
+                functionStringBuilder.append("    function\40").append(xmlItem.getMethodName())
+                        .append("(){\n        var params = {\n");
+                if (xmlItem.getParams()!=null&&xmlItem.getParams().length>0){
+                    for (int i = 0; i < xmlItem.getParams().length; i++) {
+                        if (i==xmlItem.getParams().length-1){
+                            functionStringBuilder.append("            ").append(xmlItem.getParams()[i]).append(":\n");
+                        }else {
+                            functionStringBuilder.append("            ").append(xmlItem.getParams()[i]).append(":,\n");
+                        }
+
+                    }
+                }
+                functionStringBuilder.append("        };\n        var data = JSON.stringify(params);\n        ")
+                        .append(module.getName()).append(".").append(xmlItem.getMethodName()).append("(data);\n    }\n\n");
             }
         }
         return functionStringBuilder.toString();

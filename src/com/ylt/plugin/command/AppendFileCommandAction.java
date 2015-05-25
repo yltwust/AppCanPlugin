@@ -280,10 +280,6 @@ public class AppendFileCommandAction extends WriteCommandAction<PsiFile> {
         stringBuilder.append(methodName)
         .append("Msg(String[] params){\n" +
                 "        String json=params[0];\n" +
-                "        try {\n" +
-                "            JSONObject jsonObject=new JSONObject(json);\n" +
-                "        } catch (JSONException e) {\n" +
-                "            e.printStackTrace();\n" +
                 "        }\n" );
         if (method.getType()==1){
             //cb回调

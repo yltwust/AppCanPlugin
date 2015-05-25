@@ -114,7 +114,7 @@ public class GenerateCodeAction extends BaseGenerateAction {
                         }
                         XmlAttribute paramsXmlAttribute=tag.getAttribute("params");
                         if (paramsXmlAttribute!=null){
-                            item.setParams(paramsXmlAttribute.getValue().split("|"));
+                            item.setParams(paramsXmlAttribute.getValue().toString().split("\\|"));
                         }
                         elements.add(item);
                     }else{
