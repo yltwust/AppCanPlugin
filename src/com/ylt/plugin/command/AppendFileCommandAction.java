@@ -119,14 +119,14 @@ public class AppendFileCommandAction extends WriteCommandAction<PsiFile> {
         psiClass.add(mFactory.createFieldFromText(getJsConstByName(xmlItem,moduleName),psiClass));
     }
 
-    private void addMethodAndFiled(PsiClass psiClass,XmlItem method,int index){
+    public void addMethodAndFiled(PsiClass psiClass,XmlItem method,int index){
         psiClass.add(mFactory.createFieldFromText(createStaticFiled(method.getMethodName(),index),psiClass));
         psiClass.addBefore(mFactory.createMethodFromText(createMethod(method.getMethodName()),psiClass),psiClass.findMethodsByName("onHandleMessage",true)[0]);
         psiClass.addBefore(mFactory.createMethodFromText(createMsgMethod(method),psiClass),psiClass.findMethodsByName("onHandleMessage",true)[0]);
         addHandleMethod(psiClass,method.getMethodName());
     }
 
-    private String getJsConstByName(XmlItem method,String moduleName){
+    protected String getJsConstByName(XmlItem method,String moduleName){
         String methodName=method.getMethodName();
         if (method.getType()==1) {
             StringBuilder stringBuilder = new StringBuilder();
@@ -162,7 +162,7 @@ public class AppendFileCommandAction extends WriteCommandAction<PsiFile> {
         }
     }
 
-    private void addHandleMethod(PsiClass psiClass,String methodName){
+    protected void addHandleMethod(PsiClass psiClass, String methodName){
         PsiMethod[] methods=psiClass.findMethodsByName("onHandleMessage", true);
         PsiMethod method=methods[0];
         PsiElement[] elements=method.getBody().getChildren();
@@ -244,7 +244,7 @@ public class AppendFileCommandAction extends WriteCommandAction<PsiFile> {
         return index+1;
     }
 
-    private String createStaticFiled(String methodName,int index){
+    protected String createStaticFiled(String methodName, int index){
         StringBuilder stringBuilder=new StringBuilder("private static final int MSG_")
                 .append(StringUtil.getStaticFieldName(methodName))
                 .append("=")
@@ -253,7 +253,7 @@ public class AppendFileCommandAction extends WriteCommandAction<PsiFile> {
         return  stringBuilder.toString();
     }
 
-    private String createMethod(String methodName){
+    protected String createMethod(String methodName){
         StringBuilder stringBuilder=new StringBuilder("public void ");
         stringBuilder.append(methodName)
                 .append("(String[] params){\n")
@@ -274,7 +274,7 @@ public class AppendFileCommandAction extends WriteCommandAction<PsiFile> {
         return  stringBuilder.toString();
     }
 
-    private String createMsgMethod(XmlItem method){
+    protected String createMsgMethod(XmlItem method){
         String methodName=method.getMethodName();
         StringBuilder stringBuilder=new StringBuilder("private void ");
         stringBuilder.append(methodName)
@@ -291,7 +291,7 @@ public class AppendFileCommandAction extends WriteCommandAction<PsiFile> {
                     .append(StringUtil.getStaticFieldName(methodName))
                     .append(", jsonResult.toString());\n");
         }
-        stringBuilder.append( "    }");
+        stringBuilder.append("    }");
         return  stringBuilder.toString();
     }
 

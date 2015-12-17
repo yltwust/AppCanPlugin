@@ -1,7 +1,7 @@
 <idea-plugin version="3">
     <id>com.ylt.appcan.plugin</id>
     <name>AppCan Plugin</name>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <vendor email="ylt_wust@163.com" url="http://www.appcan.cn">ylt</vendor>
 
     <description><![CDATA[
@@ -10,7 +10,7 @@
         根据plugin.xml method name生成对应方法
         使用说明:
         1.复制AppcanPluginDemo3.0工程，重命module为插件名称，以uex开头;<br>
-        2.右键module -> AppCanMenu -> initModule <br>
+        2.右键module -> AppCanMenu -> initModule (初始化工程)<br>
         会初始化入口类，plugin.xml,config.xml <br>
         3.在config.xml中配置method name type params(多个参数以“|”分隔)<br>
         4.右键 -> Generate -> generateMethod <br>
@@ -21,6 +21,7 @@
       初始版本.<br>
       1.0.1 添加HTML生成
       1.0.2 支持HTML参数生成
+      1.0.3 添加GenerateMethod(No Handler)，不通过handler转主线程(3.2以后引擎)
       <em></em>
     ]]>
     </change-notes>
@@ -61,6 +62,11 @@
 
         <action id="GenerateCodeAction" class="com.ylt.plugin.action.GenerateCodeAction" text="GenerateMethod"
                 description="GenerateCodeAction">
+            <add-to-group group-id="GenerateGroup"/>
+        </action>
+
+        <action id="GenerateCodeNoHandlerAction" class="com.ylt.plugin.action.GenerateCodeNoHandlerAction" text="GenerateMethod(No Handler)"
+                description="GenerateMethodNoHandler">
             <add-to-group group-id="GenerateGroup"/>
         </action>
 
