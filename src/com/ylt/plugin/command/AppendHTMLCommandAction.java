@@ -118,7 +118,11 @@ public class AppendHTMLCommandAction extends WriteCommandAction<PsiFile> {
                     callbackName=xmlItem.getMethodName();
                 }
                 callbackBuilder.append("    function\40").append(callbackName).append("(info){\n        ")
-                        .append("alert(info);\n    }\n\n");
+                        .append("alert(")
+                        .append("'")
+                        .append(callbackName)
+                        .append(": '+")
+                        .append("info);\n    }\n\n");
             }
         }
         return callbackBuilder.toString();

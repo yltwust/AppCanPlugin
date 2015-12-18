@@ -1,7 +1,7 @@
 <idea-plugin version="3">
     <id>com.ylt.appcan.plugin</id>
     <name>AppCan Plugin</name>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
     <vendor email="ylt_wust@163.com" url="http://www.appcan.cn">ylt</vendor>
 
     <description><![CDATA[
@@ -22,6 +22,7 @@
       1.0.1 添加HTML生成
       1.0.2 支持HTML参数生成
       1.0.3 添加GenerateMethod(No Handler)，不通过handler转主线程(3.2以后引擎)
+      1.0.5 HTML 回调函数弹出信息添加方法名
       <em></em>
     ]]>
     </change-notes>
